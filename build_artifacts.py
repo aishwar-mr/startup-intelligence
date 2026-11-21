@@ -1,79 +1,87 @@
-"""Regenerate the data artifacts locally (instead of downloading from Colab).
+"""Build the data artifacts the app loads: validated table, TF-IDF, embeddings, report.
 
-Fetches the YC directory, builds the TF-IDF matrix + vectorizer, encodes
-companies with MiniLM, and writes the four files into ./data .
+Usage:
+    python build_artifacts.py                 # fetch YC data, validate, build everything
+    python build_artifacts.py --no-embeddings # skip the embedding step (TF-IDF only)
+    python build_artifacts.py --raw data/yc_companies_raw.json  # use a local raw file
 
-Usage:  python build_artifacts.py
+Outputs in ./data :
+    yc_companies.parquet, tfidf_vectorizer.joblib, tfidf_matrix.npz,
+    company_embeddings.npy (unless skipped), validation_report.json,
+    validation_flags.csv, validation_exclusions.csv
 """
-import re
+import argparse
+import json
 from pathlib import Path
 
 import joblib
 import numpy as np
-import pandas as pd
 import requests
 from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from src.preprocess import clean
+from src.validation import validate
+
 DATA_DIR = Path(__file__).resolve().parent / "data"
-DATA_DIR.mkdir(exist_ok=True)
 YC_URL = "https://yc-oss.github.io/api/companies/all.json"
 
-KEEP = ["name", "one_liner", "long_description", "industry", "industries",
-        "tags", "batch", "status", "website", "all_locations"]
 
-
-def to_text(x):
-    if isinstance(x, list):
-        return " ".join(str(i) for i in x)
-    return "" if x is None else str(x)
-
-
-def clean(text):
-    text = str(text).lower()
-    text = re.sub(r"http\S+", " ", text)
-    text = re.sub(r"[^a-z0-9\s]", " ", text)
-    return re.sub(r"\s+", " ", text).strip()
+def corpus_text(r):
+    return clean(" ".join([r["name"], r["name"], r["one_liner"], r["one_liner"],
+                           r["tags"], r["tags"], r["industry"], r["industries"], r["long_description"]]))
 
 
 def main():
-    print("Fetching YC directory...")
-    raw = requests.get(YC_URL, timeout=60).json()
-    df = pd.DataFrame(raw)
-    for col in KEEP:
-        if col not in df.columns:
-            df[col] = ""
-    data = df[KEEP].copy()
-    for col in KEEP:
-        data[col] = data[col].apply(to_text)
-    data = data[(data["one_liner"].str.strip() != "") |
-                (data["long_description"].str.strip() != "")].reset_index(drop=True)
-    print(f"  kept {len(data):,} companies")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--raw", default=None, help="local raw JSON file instead of fetching")
+    ap.add_argument("--no-embeddings", action="store_true")
+    args = ap.parse_args()
+    DATA_DIR.mkdir(exist_ok=True)
 
-    data["clean_text"] = data.apply(lambda r: clean(
-        " ".join([r["name"], r["name"], r["one_liner"], r["one_liner"],
-                  r["tags"], r["tags"], r["industry"], r["industries"],
-                  r["long_description"]])), axis=1)
+    if args.raw:
+        print(f"Loading raw records from {args.raw}")
+        records = json.loads(Path(args.raw).read_text())
+    else:
+        print("Fetching YC directory…")
+        records = requests.get(YC_URL, timeout=60).json()
+    print(f"  {len(records):,} raw records")
 
-    print("Building TF-IDF...")
+    print("Validating and cleaning…")
+    res = validate(records)
+    df = res.clean.copy()
+    print(f"  passed {res.report['passed']:,} | excluded {res.report['excluded']}")
+
+    json.dump(res.report, open(DATA_DIR / "validation_report.json", "w"), indent=2)
+    res.flags.to_csv(DATA_DIR / "validation_flags.csv", index=False)
+    res.exclusions.to_csv(DATA_DIR / "validation_exclusions.csv", index=False)
+
+    print("Building TF-IDF…")
+    df["_text"] = df.apply(corpus_text, axis=1)
     vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2),
                                  min_df=2, max_df=0.9, sublinear_tf=True)
-    tfidf_matrix = vectorizer.fit_transform(data["clean_text"])
-
-    print("Encoding embeddings (MiniLM)...")
-    from sentence_transformers import SentenceTransformer
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    embed_texts = data.apply(
-        lambda r: f"{r['name']}. {r['one_liner']}. {r['long_description']}. "
-                  f"Tags: {r['tags']}. Industry: {r['industry']}", axis=1).tolist()
-    company_emb = model.encode(embed_texts, batch_size=64, normalize_embeddings=True,
-                               show_progress_bar=True, convert_to_numpy=True)
-
-    print("Saving artifacts...")
-    data.to_parquet(DATA_DIR / "yc_companies.parquet", index=False)
+    matrix = vectorizer.fit_transform(df["_text"])
+    texts = df["_text"].tolist()
+    df = df.drop(columns=["_text"])
+    df.to_parquet(DATA_DIR / "yc_companies.parquet", index=False)
     joblib.dump(vectorizer, DATA_DIR / "tfidf_vectorizer.joblib")
-    sparse.save_npz(DATA_DIR / "tfidf_matrix.npz", tfidf_matrix)
-    np.save(DATA_DIR / "company_embeddings.npy", company_emb)
+    sparse.save_npz(DATA_DIR / "tfidf_matrix.npz", matrix)
+    print(f"  TF-IDF matrix {matrix.shape}")
+
+    if not args.no_embeddings:
+        print("Encoding embeddings (all-MiniLM-L6-v2)…")
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+        emb_texts = df.apply(
+            lambda r: f"{r['name']}. {r['one_liner']}. {r['long_description']}. "
+                      f"Tags: {r['tags']}. Industry: {r['industry']}", axis=1).tolist()
+        emb = model.encode(emb_texts, batch_size=64, normalize_embeddings=True,
+                           show_progress_bar=True, convert_to_numpy=True)
+        np.save(DATA_DIR / "company_embeddings.npy", emb)
+        print(f"  embeddings {emb.shape}")
+    else:
+        print("Skipping embeddings (TF-IDF only).")
+
     print("Done ->", DATA_DIR)
 
 

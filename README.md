@@ -1,96 +1,87 @@
-# 🚀 Startup Intelligence & Market Research Platform
+# 📊 Startup Intelligence & Market Analytics Platform
 
-Type a startup idea in plain English and get: the most similar existing startups,
-a **market-saturation score**, multi-source **sentiment**, and a fused **Opportunity Score**
-with an actionable verdict.
+*An NLP-powered decision-support application for competitor discovery, market analysis, and
+evidence-based opportunity assessment.*
 
-Built for a Web Data Mining lab project. Techniques used: information retrieval
-(inverted index, TF-IDF, cosine similarity), semantic search (sentence embeddings),
-a custom saturation metric, and lexicon-based sentiment analysis.
+Type a startup idea and get its closest Y Combinator competitors, how crowded the space is, live
+community/news sentiment, a differentiation (white-space) view, and an optional evidence-grounded AI
+summary — with data-quality validation and tests behind it. All outputs are explainable estimates
+over a public dataset, not objective market facts.
 
----
+> Live demo: _add your Streamlit Cloud URL here_ · Screenshots: `docs/` (add real captures).
 
-## What it does
+## 1. Project overview
+A four-screen Streamlit app (Market Overview, Competitor Intelligence, AI Insights, Data Quality)
+built on ~6,300 validated YC startups, using TF-IDF + semantic embeddings for retrieval, a custom
+saturation metric, multi-source sentiment, and an optional grounded LLM summary.
 
-| Module | Technique | Data source |
-|--------|-----------|-------------|
-| Competitor finder | TF-IDF + cosine **and** MiniLM embeddings | YC directory (yc-oss) |
-| Saturation score | custom metric (breadth · closeness · vitality) | YC directory |
-| Sentiment | VADER on Hacker News + GDELT (+ optional Product Hunt) | public APIs |
-| Opportunity Score | saturation × sentiment fusion + 2×2 verdict | derived |
+## 2. Business problem
+Manually searching a large startup dataset to understand a competitive landscape is slow and
+inconsistent, and gives no sense of how crowded or active a space is. See `docs/Business_Requirements.md`.
 
-All data is public company metadata and public discussion/news — no PII.
+## 3. Proposed solution
+Searchable NLP matching + structured analytics + explainable scoring + a validated data pipeline,
+delivered as a reliable, documented, tested web app.
 
----
+## 4. Key features
+- Competitor search with similarity scores and filters (industry, status, region, stage, batch year).
+- Market Overview: distributions + category density/momentum indicators.
+- Market Saturation and Opportunity scores, each with an in-app explanation and limitations.
+- White-space / differentiation finder.
+- Data-quality validation with a deterministic report (raw data preserved).
+- Optional evidence-grounded AI summary (OpenRouter) with a rule-based fallback.
 
-## Project layout
+## 5. Architecture & technology stack
+Python · pandas · scikit-learn (TF-IDF, cosine) · sentence-transformers (MiniLM) · vaderSentiment ·
+Plotly · Streamlit · pytest. Logic lives in `src/`; `app.py` is UI only; artifacts are precomputed.
+See `docs/Process_Flow.md`.
 
-```
-startup-intelligence/
-├── app.py                 # Streamlit UI
-├── build_artifacts.py     # regenerate data/ locally (alternative to Colab)
-├── requirements.txt
-├── src/
-│   ├── preprocess.py      # text cleaning
-│   ├── resources.py       # load cached artifacts
-│   ├── retrieval.py       # TF-IDF + embedding competitor finders
-│   ├── saturation.py      # market saturation score
-│   └── sentiment.py       # HN/GDELT/PH fetchers + VADER + Opportunity Score
-└── data/                  # the 4 artifacts go here (see data/README.md)
-```
+## 6. Dataset description & limitations
+Public `yc-oss` Y Combinator directory (company metadata only; no PII). YC-only, so absolute counts
+understate real markets; text similarity can miss differently-worded competitors.
 
----
+## 7. Data validation methodology
+Documented checks, cleaning rules, exclusion/flag logs, and a deterministic fingerprinted report.
+Raw data is never overwritten. See `docs/Data_Validation.md`.
 
-## 1. Get the data artifacts
+## 8. Search & scoring methodology
+Cosine similarity over TF-IDF (and MiniLM embeddings when available); saturation = weighted blend of
+breadth, closeness and vitality; opportunity = openness × dissatisfaction. All explained in-app and
+in `docs/`.
 
-**Option A — from Colab (recommended):** run the notebook, then download
-`yc_companies.parquet`, `tfidf_vectorizer.joblib`, `tfidf_matrix.npz`,
-`company_embeddings.npy` from the Files panel and place them in `data/`.
+## 9. Testing & validation approach
+`python -m pytest` (29 tests): data validation, search/ranking, filters, analytics, AI grounding and
+fallback. All four screens pass a headless `AppTest` smoke test. See `docs/Test_Cases.md` and
+`docs/Results_and_Validation.md`.
 
-**Option B — locally:** `python build_artifacts.py` (fetches YC + rebuilds everything).
+## 10. Screenshots / demo
+Add real screenshots of the running app here (not mock-ups).
 
-## 2. Run locally
-
+## 11. Setup & execution
 ```bash
 pip install -r requirements.txt
+python build_artifacts.py          # or copy the 4 artifacts from the Colab notebook into data/
 streamlit run app.py
+python -m pytest                   # run the test suite
 ```
+Optional AI: set `OPENROUTER_API_KEY` (and optionally `OPENROUTER_MODEL`) in the environment or
+Streamlit secrets. Without it, summaries are rule-based.
 
-Open http://localhost:8501, type an idea, click **Analyze**.
+## 12. Known limitations & future improvements
+Multilingual sentiment; broader corpus (Crunchbase/Product Hunt); learned saturation weights; trend
+detection over time; approximate-nearest-neighbour search for scale. See `docs/Results_and_Validation.md`.
 
-## 3. Push to GitHub
-
-```bash
-git init
-git add .
-git commit -m "Startup Intelligence platform"
-git branch -M main
-git remote add origin https://github.com/<your-username>/startup-intelligence.git
-git push -u origin main
+## Repository layout
 ```
-
-> The `.npy` artifact is ~10 MB — well under GitHub's 100 MB limit, so plain git is fine (no LFS needed).
-
-## 4. Deploy on Streamlit Community Cloud (free)
-
-1. Go to **share.streamlit.io** → sign in with GitHub.
-2. **New app** → pick your repo, branch `main`, main file `app.py`.
-3. Deploy. First build takes a few minutes (it installs torch + downloads MiniLM).
-4. You get a public `https://<app>.streamlit.app` URL for the viva demo.
-
-**Optional — Product Hunt:** in the app's **Settings → Secrets**, add
-`PRODUCTHUNT_TOKEN = "your_token"` to enable that source.
-
----
-
-## Notes & limitations (good viva talking points)
-
-- **English-only sentiment:** VADER scores English text; GDELT's non-English
-  articles are used for global *coverage* but not sentiment. Multilingual
-  sentiment is a clear future extension.
-- **GDELT throttling:** rapid repeat calls return an empty body, so `fetch_gdelt`
-  retries with backoff and results are cached per topic.
-- **Saturation constants** (`TAU`, `BREADTH_REF`, `CLOSE_REF`) and the Opportunity
-  weights are tunable design choices in `src/saturation.py` and `src/sentiment.py`.
-- **Corpus bias:** the company set is Y Combinator only — a strong sample, but not
-  the whole startup world.
+Startup-Intelligence-Platform/
+├── app.py                 # Streamlit UI (4 screens)
+├── build_artifacts.py     # validate + build TF-IDF/embeddings/report
+├── requirements.txt
+├── CHANGELOG.md
+├── src/                   # preprocess, validation, resources, retrieval,
+│                          # saturation, analytics, whitespace, sentiment, insights
+├── tests/                 # pytest suite
+├── docs/                  # BA docs: requirements, user stories, process flow,
+│                          # test cases, results, data validation, user guide
+└── data/                  # artifacts (built) + validation logs
+```

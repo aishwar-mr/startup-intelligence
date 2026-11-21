@@ -1,0 +1,396 @@
+{
+  "rules_version": "1.0",
+  "input_fingerprint": "d7d0ed831c42b2a92e44013d7521aed4dd369ceafd79b367ff406d234986a49b",
+  "total_received": 6406,
+  "passed": 6349,
+  "excluded": 57,
+  "excluded_by_reason": {
+    "missing_id": 0,
+    "duplicate_id": 0,
+    "missing_name": 0,
+    "empty_description": 57,
+    "probable_duplicate": 0
+  },
+  "duplicates": {
+    "duplicate_id": 0,
+    "probable_duplicate": 0,
+    "name_shared_groups": 95,
+    "name_shared_records": 200,
+    "website_shared_records": 4
+  },
+  "missing_by_field": {
+    "name": 0,
+    "one_liner": 161,
+    "long_description": 426,
+    "industry": 0,
+    "tags": 834,
+    "batch": 0,
+    "status": 0,
+    "website": 302,
+    "all_locations": 150,
+    "regions": 0,
+    "team_size": 124,
+    "stage": 0
+  },
+  "placeholder_by_field": {
+    "long_description": 2,
+    "one_liner": 3
+  },
+  "type_issues_by_field": {},
+  "flags_by_type": {
+    "short_description": 46,
+    "description_equals_name": 1,
+    "placeholder_text": 1,
+    "missing_tags": 793,
+    "missing_website": 291,
+    "missing_location": 131,
+    "missing_team_size": 118,
+    "team_size_zero": 119,
+    "invalid_team_size": 1,
+    "unspecified_batch": 1,
+    "invalid_batch": 0,
+    "unspecified_industry": 18,
+    "invalid_status": 0,
+    "type_coerced": 0,
+    "name_shared_with_other_company": 200,
+    "website_shared_with_other_company": 4,
+    "website_normalised": 5
+  },
+  "normalisation_actions": {
+    "whitespace": 4679,
+    "html": 4,
+    "unicode": 0,
+    "status_case": 0,
+    "lists": 1,
+    "website_scheme": 5,
+    "sort": 1
+  },
+  "status_counts": {
+    "Acquired": 847,
+    "Active": 4405,
+    "Inactive": 1075,
+    "Public": 22
+  },
+  "examples": {
+    "excluded:empty_description": [
+      {
+        "id": 143,
+        "name": "Acunote",
+        "detail": "both descriptions blank"
+      },
+      {
+        "id": 229,
+        "name": "Fithub",
+        "detail": "both descriptions blank"
+      },
+      {
+        "id": 260,
+        "name": "RoboHR",
+        "detail": "both descriptions blank"
+      },
+      {
+        "id": 261,
+        "name": "AdThrow",
+        "detail": "both descriptions blank"
+      },
+      {
+        "id": 262,
+        "name": "Stackq",
+        "detail": "both descriptions blank"
+      }
+    ],
+    "flag:short_description": [
+      {
+        "id": 28,
+        "name": "Zipio",
+        "detail": "19 chars"
+      },
+      {
+        "id": 131,
+        "name": "Hungry Labs",
+        "detail": "22 chars"
+      },
+      {
+        "id": 189,
+        "name": "Brushes",
+        "detail": "22 chars"
+      },
+      {
+        "id": 199,
+        "name": "Post.fm",
+        "detail": "16 chars"
+      },
+      {
+        "id": 204,
+        "name": "MessageParty",
+        "detail": "11 chars"
+      }
+    ],
+    "flag:description_equals_name": [
+      {
+        "id": 326,
+        "name": "Blue Frog Gaming",
+        "detail": ""
+      }
+    ],
+    "flag:placeholder_text": [
+      {
+        "id": 27928,
+        "name": "Portalform",
+        "detail": "long_description='Coming soon'"
+      }
+    ],
+    "flag:missing_tags": [
+      {
+        "id": 6,
+        "name": "iCracked",
+        "detail": ""
+      },
+      {
+        "id": 59,
+        "name": "Priceonomics",
+        "detail": ""
+      },
+      {
+        "id": 64,
+        "name": "Y Combinator",
+        "detail": ""
+      },
+      {
+        "id": 69,
+        "name": "Picplum",
+        "detail": ""
+      },
+      {
+        "id": 78,
+        "name": "PayDragon",
+        "detail": ""
+      }
+    ],
+    "flag:missing_website": [
+      {
+        "id": 17,
+        "name": "Couple",
+        "detail": ""
+      },
+      {
+        "id": 41,
+        "name": "LendUp",
+        "detail": ""
+      },
+      {
+        "id": 42,
+        "name": "Tilt",
+        "detail": ""
+      },
+      {
+        "id": 45,
+        "name": "LVL6",
+        "detail": ""
+      },
+      {
+        "id": 54,
+        "name": "Loom",
+        "detail": ""
+      }
+    ],
+    "flag:missing_location": [
+      {
+        "id": 23,
+        "name": "BookSolid",
+        "detail": ""
+      },
+      {
+        "id": 26,
+        "name": "Marft",
+        "detail": ""
+      },
+      {
+        "id": 28,
+        "name": "Zipio",
+        "detail": ""
+      },
+      {
+        "id": 57,
+        "name": "SolidStage",
+        "detail": ""
+      },
+      {
+        "id": 64,
+        "name": "Y Combinator",
+        "detail": ""
+      }
+    ],
+    "flag:missing_team_size": [
+      {
+        "id": 81,
+        "name": "Proxino",
+        "detail": ""
+      },
+      {
+        "id": 102,
+        "name": "Sift",
+        "detail": ""
+      },
+      {
+        "id": 219,
+        "name": "Creative Market",
+        "detail": ""
+      },
+      {
+        "id": 417,
+        "name": "Eligible",
+        "detail": ""
+      },
+      {
+        "id": 484,
+        "name": "Lawdingo",
+        "detail": ""
+      }
+    ],
+    "flag:team_size_zero": [
+      {
+        "id": 23,
+        "name": "BookSolid",
+        "detail": ""
+      },
+      {
+        "id": 28,
+        "name": "Zipio",
+        "detail": ""
+      },
+      {
+        "id": 34,
+        "name": "Pixelapse",
+        "detail": ""
+      },
+      {
+        "id": 43,
+        "name": "Brace",
+        "detail": ""
+      },
+      {
+        "id": 46,
+        "name": "BarSense",
+        "detail": ""
+      }
+    ],
+    "flag:invalid_team_size": [
+      {
+        "id": 32160,
+        "name": "MusicArena",
+        "detail": "team_size=-1"
+      }
+    ],
+    "flag:unspecified_batch": [
+      {
+        "id": 64,
+        "name": "Y Combinator",
+        "detail": ""
+      }
+    ],
+    "flag:unspecified_industry": [
+      {
+        "id": 588,
+        "name": "CodeNow",
+        "detail": ""
+      },
+      {
+        "id": 608,
+        "name": "One Degree",
+        "detail": ""
+      },
+      {
+        "id": 642,
+        "name": "OpenCurriculum",
+        "detail": ""
+      },
+      {
+        "id": 647,
+        "name": "Immunity Project",
+        "detail": ""
+      },
+      {
+        "id": 732,
+        "name": "Bayes Impact",
+        "detail": ""
+      }
+    ],
+    "flag:name_shared_with_other_company": [
+      {
+        "id": 42,
+        "name": "Tilt",
+        "detail": "other ids 23053"
+      },
+      {
+        "id": 72,
+        "name": "Apollo",
+        "detail": "other ids 24343,25106"
+      },
+      {
+        "id": 127,
+        "name": "Parse",
+        "detail": "other ids 30846"
+      },
+      {
+        "id": 399,
+        "name": "Arc",
+        "detail": "other ids 25118"
+      },
+      {
+        "id": 437,
+        "name": "Partnered",
+        "detail": "other ids 22985"
+      }
+    ],
+    "flag:website_shared_with_other_company": [
+      {
+        "id": 64,
+        "name": "Y Combinator",
+        "detail": "ycombinator.com also used by id 23370"
+      },
+      {
+        "id": 697,
+        "name": "Product Hunt",
+        "detail": "producthunt.com also used by id 1813"
+      },
+      {
+        "id": 1813,
+        "name": "Storyline",
+        "detail": "producthunt.com also used by id 697"
+      },
+      {
+        "id": 23370,
+        "name": "Uiflow",
+        "detail": "ycombinator.com also used by id 64"
+      }
+    ],
+    "flag:website_normalised": [
+      {
+        "id": 69,
+        "name": "Picplum",
+        "detail": ""
+      },
+      {
+        "id": 74,
+        "name": "Stypi",
+        "detail": ""
+      },
+      {
+        "id": 104,
+        "name": "Embark",
+        "detail": ""
+      },
+      {
+        "id": 157,
+        "name": "Flotype",
+        "detail": ""
+      },
+      {
+        "id": 11981,
+        "name": "Windwalk",
+        "detail": ""
+      }
+    ]
+  }
+}
