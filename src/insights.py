@@ -17,8 +17,20 @@ import requests
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 # Free models rotate; the primary is tried first, then the fallbacks, then rule-based.
-DEFAULT_MODEL = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
-FALLBACK_MODELS = ["google/gemini-2.0-flash-exp:free", "mistralai/mistral-small-3.2-24b-instruct:free"]
+DEFAULT_MODEL = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
+FALLBACK_MODELS = ["google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free",
+                   "inclusionai/ling-3.2-flash:free"]
+MODELS_URL = "https://openrouter.ai/api/v1/models"
+
+
+def _discover_free_models(tried, limit=4, timeout=15):
+    """Ask OpenRouter which free models exist right now (the static list can go stale)."""
+    try:
+        data = requests.get(MODELS_URL, timeout=timeout).json().get("data", [])
+    except Exception:
+        return []
+    ids = [m["id"] for m in data if str(m.get("id", "")).endswith(":free") and m["id"] not in tried]
+    return ids[:limit]
 
 EVIDENCE_COLS = ["id", "name", "one_liner", "industry", "batch", "status", "country", "website"]
 
@@ -90,7 +102,11 @@ def _call_openrouter(messages, api_key, timeout=45):
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json",
                "HTTP-Referer": "https://streamlit.io", "X-Title": "Startup Intelligence Platform"}
     last_err = None
-    for model in models:
+    discovered = False
+    i = 0
+    while i < len(models):
+        model = models[i]
+        i += 1
         try:
             resp = requests.post(OPENROUTER_URL, headers=headers, timeout=timeout, json={
                 "model": model, "messages": messages, "temperature": 0.2, "max_tokens": 650})
@@ -106,6 +122,9 @@ def _call_openrouter(messages, api_key, timeout=45):
                     time.sleep(1.0)
         except Exception as e:  # network / parse
             last_err = str(e)
+        if i == len(models) and not discovered:  # static list exhausted -> live discovery
+            discovered = True
+            models += _discover_free_models(set(models))
     return None, None, last_err
 
 
