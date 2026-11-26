@@ -62,7 +62,8 @@ def test_overview_counts_consistent(artifacts):
     ov = market_overview(data)
     assert ov["total"] == len(data)
     assert ov["by_industry"].sum() == len(data)
-    assert 0 <= ov["active_pct"] <= 100
+    live = ov["by_status"].get("Active", 0) + ov["by_status"].get("Public", 0)
+    assert ov["active_pct"] == round(100 * live / ov["total"], 1)
 
 
 def test_category_hints_valid(artifacts):

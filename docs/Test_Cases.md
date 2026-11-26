@@ -30,13 +30,13 @@ need the built artifacts are skipped automatically if `data/` has not been built
 | TC-22 | AI | API outage | Falls back to rule-based | Fell back | Pass | `test_api_failure_falls_back` |
 | TC-23 | AI | API success | Grounded LLM summary returned | Grounded | Pass | `test_api_success_is_grounded` |
 
-## UI smoke test (manual / AppTest)
+## UI smoke test (separate from pytest)
 All four screens (Market Overview, Competitor Intelligence, AI Insights, Data Quality) render with
 zero exceptions via `streamlit.testing.v1.AppTest`, including empty-query handling and the
 rule-based AI path. See `Results_and_Validation.md`.
 
 ## Competitor-matching evaluation (to complete by hand)
-The spec asks for a Precision@K evaluation on a hand-labelled sample. The notebook includes a
-labelling scaffold: for ~15–20 representative queries, mark each returned company relevant/not,
-then compute Precision@10. Record the sample size and labelling method. Do not report accuracy
-figures until the labels are actually filled in — the scaffold ships unlabelled on purpose.
+The spec asks for a Precision@K evaluation on a hand-labelled sample, which has not been done yet:
+for ~15–20 representative queries, mark each returned company relevant/not, then compute
+Precision@10. Record the sample size and labelling method. Do not report accuracy figures until the
+labels are actually filled in.

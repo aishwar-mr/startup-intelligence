@@ -5,8 +5,9 @@ Implemented in `src/validation.py`. The single source of truth for the rules is 
 
 ## Principles
 1. **Raw data is never modified.** Validation reads the raw records and returns a *cleaned copy*,
-   a flag log, an exclusion log and a summary report. `build_artifacts.py` also writes the raw
-   snapshot to `data/yc_companies_raw.json`.
+   a flag log, an exclusion log and a summary report. A raw snapshot is kept in
+   `data/yc_companies_raw.json`; `build_artifacts.py` does not currently update it, so it can be
+   older than the built artifacts.
 2. **Documented rules, no silent deletion.** Every exclusion and flag has a named rule and a reason;
    excluded records are listed in `validation_exclusions.csv`, not dropped silently.
 3. **Deterministic.** Records are processed in id order (ties broken by content), and the report

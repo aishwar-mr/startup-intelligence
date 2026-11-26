@@ -21,6 +21,8 @@ DEFAULT_MODEL = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-ultra-550b-a55b
 FALLBACK_MODELS = ["google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free",
                    "inclusionai/ling-3.2-flash:free"]
 MODELS_URL = "https://openrouter.ai/api/v1/models"
+# Reasoning models spend part of this budget thinking, so leave generous headroom.
+MAX_TOKENS = 3000
 
 
 def _discover_free_models(tried, limit=4, timeout=15):
@@ -109,13 +111,18 @@ def _call_openrouter(messages, api_key, timeout=45):
         i += 1
         try:
             resp = requests.post(OPENROUTER_URL, headers=headers, timeout=timeout, json={
-                "model": model, "messages": messages, "temperature": 0.2, "max_tokens": 650})
+                "model": model, "messages": messages, "temperature": 0.2,
+                "max_tokens": MAX_TOKENS})
             if resp.status_code == 200:
                 data = resp.json()
-                text = (data.get("choices") or [{}])[0].get("message", {}).get("content", "")
-                if text and text.strip():
+                choice = (data.get("choices") or [{}])[0]
+                text = choice.get("message", {}).get("content", "")
+                if choice.get("finish_reason") == "length":  # cut off mid-answer
+                    last_err = "truncated response"
+                elif text and text.strip():
                     return text.strip(), data.get("model", model), None
-                last_err = "empty response"
+                else:
+                    last_err = "empty response"
             else:
                 last_err = f"HTTP {resp.status_code}"
                 if resp.status_code == 429:

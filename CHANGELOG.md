@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.1
+Added
+- README screenshots (`docs/screenshots/`) and expanded setup and scoring notes.
+
+Fixed
+- AI Insights: replaced retired free models, added live free-model discovery, and stopped showing
+  cut-off summaries.
+- Market Overview: "Active / Public" now includes Public companies.
+- Docs: refreshed figures to match the bundled data.
+
 ## v2.0 — Market Analytics upgrade
 Upgraded the Startup Intelligence project per the upgrade specification.
 

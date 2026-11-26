@@ -4,7 +4,7 @@ Built by `python build_artifacts.py` or the Colab notebook. Commit these so Stre
 
 | File | What |
 |------|------|
-| `yc_companies_raw.json` | Raw YC snapshot (preserved source; input to validation) |
+| `yc_companies_raw.json` | Raw YC snapshot (may be older than the built files; usable as input with `--raw`) |
 | `yc_companies.parquet` | Cleaned, validated company table |
 | `tfidf_vectorizer.joblib` | Fitted TF-IDF vectoriser |
 | `tfidf_matrix.npz` | Sparse TF-IDF matrix |

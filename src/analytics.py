@@ -40,7 +40,7 @@ def market_overview(data: pd.DataFrame) -> dict:
     remote = data.loc[data["remote_policy"] != "", "remote_policy"].value_counts()
     return {
         "total": int(len(data)),
-        "active_pct": round(100 * by_status.get("Active", 0) / max(len(data), 1), 1),
+        "active_pct": round(100 * int(data["status"].isin(["Active", "Public"]).sum()) / max(len(data), 1), 1),
         "industries": int(data["industry"].nunique()),
         "countries": int((data["country"] != "Unspecified").sum() and data["country"].nunique() - 1),
         "latest_batch_year": latest_year,
